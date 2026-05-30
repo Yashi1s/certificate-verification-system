@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>C-TRINITY NET | Certificate Verification</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Inter',sans-serif;
+}
+
+body{
+background:#f5f7fa;
+color:#333;
+}
+
+header{
+background:#fff;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+
+.logo{
+font-size:22px;
+font-weight:700;
+color:#e63946;
+}
+
+nav a{
+margin-left:25px;
+text-decoration:none;
+color:#444;
+font-weight:500;
+}
+
+nav a:hover{
+color:#e63946;
+}
+
+.container{
+height:calc(100vh - 80px);
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.upload-box{
+background:#fff;
+width:480px;
+padding:40px;
+border-radius:10px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.upload-box h1{
+font-size:26px;
+margin-bottom:10px;
+}
+
+.upload-box p{
+font-size:14px;
+color:#666;
+margin-bottom:30px;
+}
+
+.upload-btn{
+background:#e63946;
+color:#fff;
+border:none;
+padding:15px 30px;
+font-size:16px;
+font-weight:600;
+border-radius:6px;
+cursor:pointer;
+}
+
+.upload-btn:hover{
+background:#d62839;
+}
+
+.formats{
+margin-top:15px;
+font-size:13px;
+color:#777;
+}
+
+.file-name{
+margin-top:15px;
+font-size:14px;
+color:#2a9d8f;
+font-weight:500;
+}
+
+/* RESULT BOX */
+.result-box{
+margin-top:25px;
+padding:20px;
+border-radius:8px;
+background:#f1f3f5;
+font-size:15px;
+display:none;
+text-align:left;
+}
+
+.result-title{
+font-size:18px;
+font-weight:700;
+margin-bottom:10px;
+}
+
+footer{
+position:fixed;
+bottom:10px;
+width:100%;
+text-align:center;
+font-size:12px;
+color:#888;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="logo">C-TRINITY NET</div>
+<nav>
+<a href="#">Home</a>
+<a href="#">Verify Certificate</a>
+<a href="#">About</a>
+<a href="#">Contact</a>
+</nav>
+</header>
+
+<div class="container">
+<div class="upload-box">
+
+<h1>Certificate Verification</h1>
+<p>Upload your academic certificate to verify authenticity using C-TRINITY NET</p>
+
+<input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" hidden>
+
+<button class="upload-btn" onclick="openFileManager()">
+Upload Certificate
+</button>
+
+<div class="formats">
+Supported formats: JPG, PNG, PDF
+</div>
+
+<div class="file-name" id="fileName"></div>
+
+<!-- RESULT DISPLAY -->
+<div class="result-box" id="resultBox">
+<div class="result-title" id="verdict"></div>
+
+<p><b>Overall Confidence:</b> <span id="confidence"></span></p>
+<p><b>Visual Accuracy:</b> <span id="visual"></span></p>
+<p><b>Text Accuracy:</b> <span id="text"></span></p>
+<p><b>Layout Accuracy:</b> <span id="layout"></span></p>
+<p><b>Reason:</b> <span id="reason"></span></p>
+
+</div>
+
+</div>
+</div>
+
+<footer>
+© 2026 C-TRINITY NET | Cybersecurity Certificate Verification System
+</footer>
+
+<script>
+
+function openFileManager(){
+    document.getElementById("fileInput").click();
+}
+
+document.getElementById("fileInput").addEventListener("change",function(e){
+
+e.preventDefault();
+
+const fileInput = document.getElementById("fileInput");
+
+if(fileInput.files.length === 0){
+    console.log("No file selected");
+    return;
+}
+
+const file = fileInput.files[0];
+console.log("Uploading:", file.name);
+
+document.getElementById("fileName").innerText = "Selected file: " + file.name;
+
+const formData = new FormData();
+formData.append("file", file);
+
+fetch("http://127.0.0.1:5000/upload",{
+method:"POST",
+body:formData
+})
+.then(res => res.json())
+.then(data => {
+
+console.log("Backend response:", data);
+
+if(data.error){
+alert(data.error);
+return;
+}
+
+document.getElementById("resultBox").style.display="block";
+
+document.getElementById("verdict").innerText=data["Final Verdict"];
+document.getElementById("confidence").innerText=data["Overall Confidence"];
+document.getElementById("visual").innerText=data["Visual Stream Accuracy"];
+document.getElementById("text").innerText=data["Text Stream Accuracy"];
+document.getElementById("layout").innerText=data["Layout Stream Accuracy"];
+document.getElementById("reason").innerText=data["Reason"];
+
+})
+.catch(err=>{
+console.error(err);
+alert("Upload failed");
+});
+
+});
+</script>
+</body>
+</html>
